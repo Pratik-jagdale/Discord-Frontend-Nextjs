@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { web3AuthService } from "../../../lib/web3auth";
 import { NFTService, type NFTCollection } from "../../../lib/nft";
 
+
 interface User {
   address: string;
   name?: string;
@@ -18,6 +19,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   signMessage: (message: string) => Promise<string>;
   refreshNFTCollections: () => Promise<void>;
+  getBalance:() => Promise<string>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -128,6 +130,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await loadNFTCollections(user.address);
   };
 
+  const  getBalance = async (): Promise<string> => {
+    if (!isAuthenticated) {
+      throw new Error("User not authenticated");
+    }
+    
+    return await web3AuthService.getBalance();
+  };
+  
+  
+
   return (
     <AuthContext.Provider
       value={{
@@ -139,6 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         signMessage,
         refreshNFTCollections,
+        getBalance,
       }}
     >
       {children}
